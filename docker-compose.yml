@@ -1,0 +1,13 @@
+version: '1'
+services:
+  nizuri:
+    container_name: nizuri
+    image: nizuri
+    network_mode: bridge
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+        - "80:80"
+        - "443:443"
+    restart: unless-stopped
