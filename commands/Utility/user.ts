@@ -1,5 +1,8 @@
 import * as Discord from 'discord.js'
-import { errColour, successColour } from '../../config.json'
+// import { errColour, successColour } from '../../config.json'
+const errColour = process.env.errColour
+const successColour = process.env.successColour
+
 
 const createEmbed = (message: Discord.Message, user: Discord.User, ) => {
     const avatar: string = user.displayAvatarURL({ format: 'png', dynamic: true });

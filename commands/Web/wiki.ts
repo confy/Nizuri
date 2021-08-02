@@ -1,7 +1,10 @@
 import * as Discord from 'discord.js';
 import * as fetch from 'node-fetch'
-import { errColour } from '../../config.json'
+// import { errColour } from '../../config.json'
 const endpoint: string = 'https://en.wikipedia.org/w/api.php?'
+const errColour = process.env.errColour
+const successColour = process.env.successColour
+
 
 module.exports = {
 	name: 'wiki',

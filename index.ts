@@ -1,8 +1,11 @@
 // All this code was literally taken from https://discordjs.guide/
 
 import * as fs from 'fs';
-import { prefix, token } from './config.json';
+//import { prefix, token } from './config.json';
 import * as Discord from 'discord.js'
+const prefix = process.env.prefix
+const token = process.env.token
+console.log(token)
 
 const client: Discord.Client = new Discord.Client();
 

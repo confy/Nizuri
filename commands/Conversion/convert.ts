@@ -1,6 +1,8 @@
 import * as Discord from 'discord.js'
 import * as Qty from 'js-quantities'
-import { errColour, successColour } from '../../config.json'
+//import { errColour, successColour } from '../../config.json'
+const errColour = process.env.errColour
+const successColour = process.env.successColour
 
 module.exports = {
 	name: 'convert',

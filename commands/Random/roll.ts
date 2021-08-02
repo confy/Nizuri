@@ -1,6 +1,9 @@
 import * as Discord from 'discord.js';
 import * as Dice from './libFiles/dice';
-import { errColour } from '../../config.json'
+//import { errColour } from '../../config.json'
+
+const errColour = process.env.errColour
+const successColour = process.env.successColour
 
 module.exports = {
 	name: 'roll',

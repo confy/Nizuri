@@ -1,9 +1,13 @@
 import * as Discord from 'discord.js';
-import { errColour, successColour, currconv } from '../../config.json';
+//import { errColour, successColour, currconv } from '../../config.json';
 import * as NodeCache from'node-cache';
 import * as fetch from 'node-fetch';
 const cache: NodeCache = new NodeCache();
 const endpoint: string = "https://free.currconv.com/api/v7/convert?"
+
+const errColour = process.env.errColour
+const successColour = process.env.successColour
+const currconv = process.env.currconv
 
 async function makeRequest(fromCurrency: string, toCurrency: string) {
     const search: string = endpoint + 

@@ -1,8 +1,13 @@
 import * as Discord from 'discord.js';
 import * as pagination from 'discord.js-pagination';
 import * as unirest from 'unirest';
-import { errColour } from '../../config.json';
-import { rapidapiKey, rapidapiHost } from '../../config.json';
+//import { errColour } from '../../config.json';
+//import { rapidapiKey, rapidapiHost } from '../../config.json';
+const errColour = process.env.errColour
+const successColour = process.env.successColour
+const rapidapiHost = process.env.rapidapiHost
+const rapidapiKey = process.env.rapidapiKey
+
 
 const emoji: string[] = ['⏪', '⏩']
 const timeout: string = '60000'
