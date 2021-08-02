@@ -1,5 +1,6 @@
-import { prefix } from '../../config.json';
+//import { prefix } from '../../config.json';
 import * as Discord from 'discord.js';
+const prefix = process.env.prefix
 
 module.exports = {
 	name: 'help',
