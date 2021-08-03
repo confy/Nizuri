@@ -15,12 +15,16 @@ resource "null_resource" "example" {
     value = "A example resource that does nothing! - test trigger"
   }
 }
+data "aws_iam_role" "ecr" {
+  name = "ecr"
+}
 
-resource "aws_ecr_repository" "nizuri" {
-  name                 = "nizuri"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
+module "ecr" {
+  source = "cloudposse/ecr/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version     = "x.x.x"
+  namespace              = "eg"
+  stage                  = "test"
+  name                   = "ecr"
+  principals_full_access = [data.aws_iam_role.ecr.arn]
 }
