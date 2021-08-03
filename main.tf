@@ -15,3 +15,12 @@ resource "null_resource" "example" {
     value = "A example resource that does nothing! - test trigger"
   }
 }
+
+resource "aws_ecr_repository" "nizuri" {
+  name                 = "nizuri"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
