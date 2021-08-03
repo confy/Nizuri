@@ -15,16 +15,3 @@ resource "null_resource" "example" {
     value = "A example resource that does nothing! - test trigger"
   }
 }
-data "aws_iam_role" "ecr" {
-  name = "ecr"
-}
-
-module "ecr" {
-  source = "cloudposse/ecr/aws"
-  # Cloud Posse recommends pinning every module to a specific version
-  # version     = "x.x.x"
-  namespace              = "eg"
-  stage                  = "test"
-  name                   = "ecr"
-  principals_full_access = [data.aws_iam_role.ecr.arn]
-}
