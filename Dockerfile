@@ -1,6 +1,6 @@
 
-# Use node 14 as base image
-FROM node:14
+# Use node 16 as base image
+FROM node:16
 
 # Create nizuri dir and set as working dir
 RUN mkdir -p /usr/src/nizuri
