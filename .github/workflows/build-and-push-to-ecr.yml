@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ master ]
 
-name: Build and push docker image to ECR
+name: Build and Push to ECR
 
 jobs:
   deploy:
@@ -12,28 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-1
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push the image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-      run: |
-        # Build a docker container and push it to ECR 
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY .
-        echo "Pushing image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY"
+      - uses: actions/checkout@v2
+        name: Checkout
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        name: Build and Push to ECR
+        with:
+          image: image-name
+          registry: 526286878664.dkr.ecr.us-west-1.amazonaws.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
