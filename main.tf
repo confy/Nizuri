@@ -75,15 +75,13 @@ resource "aws_ecs_task_definition" "definition" {
   execution_role_arn       = "${var.ecs_task_execution_role}"
   network_mode             = "awsvpc"
   memory                   = "1024"
-  }
-
-container_definitions = <<DEFINITION
-[
-  {
-    "image": "${var.account}.dkr.ecr.eu-west-1.amazonaws.com/nizuri:latest",
-    "name": "nizuri-container"
-    }
-  
-]
-DEFINITION
+  container_definitions = <<DEFINITION
+  [
+    {
+      "image": "${var.account}.dkr.ecr.eu-west-1.amazonaws.com/nizuri:latest",
+      "name": "nizuri-container"
+      }
+    
+  ]
+  DEFINITION
 }
