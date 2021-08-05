@@ -18,6 +18,7 @@ jobs:
         name: Build and Push to ECR
         with:
           image: nizuri
+          tags: latest
           registry: 526286878664.dkr.ecr.us-west-1.amazonaws.com
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
