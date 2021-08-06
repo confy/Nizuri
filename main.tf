@@ -141,18 +141,26 @@ resource "aws_ecs_cluster" "nizuri_cluster" {
 
 resource "aws_ecs_task_definition" "task_definition" {
   family                = "nizuri"
-  container_definitions = <<TASK_DEFINITION
+  container_definitions = jsonencode([
   {
     "essential": true,
     "memory": 512,
-    "name": "nizuri",
+    "name": "nizuri-1",
     "cpu": 2,
     "image": "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
     "environment": []
-  }
-])
+  },
+  {
+    "essential": true,
+    "memory": 512,
+    "name": "nizuri-2",
+    "cpu": 2,
+    "image": "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
+    "environment": []
+  }]
+)
 }
-TASK_DEFINITION
+
 
 resource "aws_ecs_service" "worker" {
   name            = "worker"
