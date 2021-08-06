@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 // Public Subnet
 resource "aws_subnet" "pub_subnet" {
   vpc_id     = aws_vpc.vpc.id
-  cidr_block = "10.1.0.0/22"
+  cidr_block = "10.0.1.0/22"
 }
 
 // Routing table for our VPC
@@ -96,13 +96,13 @@ data "aws_iam_policy_document" "ecs_agent" {
 }
 
 resource "aws_iam_role" "ecs_agent" {
-  name               = "ecs-agent"
+  name               = "nizuri"
   assume_role_policy = data.aws_iam_policy_document.ecs_agent.json
 }
 
 
 resource "aws_iam_role_policy_attachment" "ecs_agent" {
-  role       = "aws_iam_role.ecs_agent.name"
+  role       = "aws_iam_role.ecs_agent.nizuri"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
@@ -112,7 +112,7 @@ resource "aws_iam_instance_profile" "ecs_agent" {
 }
 
 resource "aws_launch_configuration" "ecs_launch_config" {
-  image_id             = "ami-094d4d00fd7462815"
+  image_id             = "ami-04b6c97b14c54de18"
   iam_instance_profile = aws_iam_instance_profile.ecs_agent.name
   security_groups      = [aws_security_group.ecs_sg.id]
   user_data            = "#!/bin/bash\necho ECS_CLUSTER=my-cluster >> /etc/ecs/ecs.config"
