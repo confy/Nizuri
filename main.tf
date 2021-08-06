@@ -17,70 +17,70 @@ terraform {
 
 // Private VPC
 resource "aws_vpc" "vpc" {
-    cidr_block = "10.0.0.0/24"
-    enable_dns_support   = true
-    enable_dns_hostnames = true
-    tags       = {
-        Name = "Nizuri_Public_VPC"
-    }
+  cidr_block           = "10.0.0.0/24"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "Nizuri_Public_VPC"
+  }
 }
 
 // Gateway to our VPC
 resource "aws_internet_gateway" "internet_gateway" {
-    vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.vpc.id
 }
 
 // Public Subnet
 resource "aws_subnet" "pub_subnet" {
-    vpc_id                  = aws_vpc.vpc.id
-    cidr_block              = "10.1.0.0/22"
+  vpc_id     = aws_vpc.vpc.id
+  cidr_block = "10.1.0.0/22"
 }
 
 // Routing table for our VPC
 resource "aws_route_table" "public" {
-    vpc_id = aws_vpc.vpc.id
+  vpc_id = aws_vpc.vpc.id
 
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.internet_gateway.id
-    }
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.internet_gateway.id
+  }
 }
 
 // Pair public subnet with routing table
 resource "aws_route_table_association" "route_table_association" {
-    subnet_id      = aws_subnet.pub_subnet.id
-    route_table_id = aws_route_table.public.id
+  subnet_id      = aws_subnet.pub_subnet.id
+  route_table_id = aws_route_table.public.id
 }
 
 // Port Forwarding for our VPC
 resource "aws_security_group" "ecs_sg" {
-    vpc_id      = aws_vpc.vpc.id
+  vpc_id = aws_vpc.vpc.id
 
-    ingress {
-        from_port       = 22
-        to_port         = 22
-        protocol        = "tcp"
-        cidr_blocks     = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port       = 80
-        to_port         = 80
-        protocol        = "tcp"
-        cidr_blocks     = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port       = 443
-        to_port         = 443
-        protocol        = "tcp"
-        cidr_blocks     = ["0.0.0.0/0"]
-    }
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-    egress {
-        from_port       = 0
-        to_port         = 65535
-        protocol        = "tcp"
-        cidr_blocks     = ["0.0.0.0/0"]
-    }
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 // Security role for our instances to use
@@ -112,53 +112,53 @@ resource "aws_iam_instance_profile" "ecs_agent" {
 }
 
 resource "aws_launch_configuration" "ecs_launch_config" {
-    image_id             = "ami-094d4d00fd7462815"
-    iam_instance_profile = aws_iam_instance_profile.ecs_agent.name
-    security_groups      = [aws_security_group.ecs_sg.id]
-    user_data            = "#!/bin/bash\necho ECS_CLUSTER=my-cluster >> /etc/ecs/ecs.config"
-    instance_type        = "t2.micro"
+  image_id             = "ami-094d4d00fd7462815"
+  iam_instance_profile = aws_iam_instance_profile.ecs_agent.name
+  security_groups      = [aws_security_group.ecs_sg.id]
+  user_data            = "#!/bin/bash\necho ECS_CLUSTER=my-cluster >> /etc/ecs/ecs.config"
+  instance_type        = "t2.micro"
 }
 
 resource "aws_autoscaling_group" "failure_analysis_ecs_asg" {
-    name                      = "asg"
-    vpc_zone_identifier       = [aws_subnet.pub_subnet.id]
-    launch_configuration      = aws_launch_configuration.ecs_launch_config.name
+  name                 = "asg"
+  vpc_zone_identifier  = [aws_subnet.pub_subnet.id]
+  launch_configuration = aws_launch_configuration.ecs_launch_config.name
 
-    desired_capacity          = 2
-    min_size                  = 1
-    max_size                  = 10
-    health_check_grace_period = 300
-    health_check_type         = "EC2"
+  desired_capacity          = 2
+  min_size                  = 1
+  max_size                  = 10
+  health_check_grace_period = 300
+  health_check_type         = "EC2"
 }
 
 resource "aws_ecr_repository" "nizuri" {
-    name  = "nizuri"
+  name = "nizuri"
 }
 
 resource "aws_ecs_cluster" "nizuri_cluster" {
-    name  = "nizuri"
+  name = "nizuri"
 }
 
 resource "aws_ecs_task_definition" "task_definition" {
-  family                = "nizuri"
+  family = "nizuri"
   container_definitions = jsonencode([
-  {
-    "essential": true,
-    "memory": 512,
-    "name": "nizuri-1",
-    "cpu": 2,
-    "image": "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
-    "environment": []
-  },
-  {
-    "essential": true,
-    "memory": 512,
-    "name": "nizuri-2",
-    "cpu": 2,
-    "image": "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
-    "environment": []
-  }]
-)
+    {
+      "essential" : true,
+      "memory" : 512,
+      "name" : "nizuri-1",
+      "cpu" : 2,
+      "image" : "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
+      "environment" : []
+    },
+    {
+      "essential" : true,
+      "memory" : 512,
+      "name" : "nizuri-2",
+      "cpu" : 2,
+      "image" : "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
+      "environment" : []
+    }]
+  )
 }
 
 
