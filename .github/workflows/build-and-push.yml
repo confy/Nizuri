@@ -8,7 +8,7 @@ name: Build and Push to ECR
 
 jobs:
   deploy:
-    name: Deploy
+    name: Build And Push
     runs-on: ubuntu-latest
 
     steps:
