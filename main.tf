@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 // Public Subnet
 resource "aws_subnet" "pub_subnet" {
   vpc_id     = aws_vpc.vpc.id
-  cidr_block = "10.0.0.1/24"
+  cidr_block = "10.0.0.0/24"
 }
 
 // Routing table for our VPC
