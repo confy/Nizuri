@@ -17,7 +17,7 @@ terraform {
 
 // Private VPC
 resource "aws_vpc" "vpc" {
-  cidr_block           = "10.0.0.0/24"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags = {
@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 // Public Subnet
 resource "aws_subnet" "pub_subnet" {
   vpc_id     = aws_vpc.vpc.id
-  cidr_block = "10.1.0.0/22"
+  cidr_block = "10.0.1.0/24"
 }
 
 // Routing table for our VPC
@@ -102,7 +102,7 @@ resource "aws_iam_role" "ecs_agent" {
 
 
 resource "aws_iam_role_policy_attachment" "ecs_agent" {
-  role       = "aws_iam_role.ecs_agent.nizuri"
+  role       = aws_iam_role.ecs_agent.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
