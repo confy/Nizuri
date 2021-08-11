@@ -148,7 +148,12 @@ resource "aws_ecs_task_definition" "task_definition" {
       "name" : "nizuri-1",
       "cpu" : 2,
       "image" : "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
-      "environment" : []
+      "environmentFiles" : [
+                            {
+                              "value": "arn:aws:s3:::nizuri-env/.env"
+                              "type": "s3"
+                            }
+                          ]
     },
     {
       "essential" : true,
@@ -156,7 +161,12 @@ resource "aws_ecs_task_definition" "task_definition" {
       "name" : "nizuri-2",
       "cpu" : 2,
       "image" : "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
-      "environment" : []
+      "environmentFiles" : [
+                            {
+                              "value": "arn:aws:s3:::nizuri-env/.env"
+                              "type": "s3"
+                            }
+                          ]
     }]
   )
 }
