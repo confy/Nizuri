@@ -93,6 +93,10 @@ data "aws_iam_policy_document" "ecs_agent" {
       identifiers = ["ec2.amazonaws.com"]
     }
   }
+  statement {
+    actions   = ["s3:*", ]
+    resources = ["arn:aws:s3:::nizuri-env", "arn:aws:s3:::nizuri-env/*", ]
+  }
 }
 
 resource "aws_iam_role" "ecs_agent" {
@@ -140,7 +144,8 @@ resource "aws_ecs_cluster" "nizuri_cluster" {
 }
 
 resource "aws_ecs_task_definition" "task_definition" {
-  family = "nizuri"
+  family             = "nizuri"
+  execution_role_arn = aws_iam_role.ecs_agent.arn
   container_definitions = jsonencode([
     {
       "essential" : true,
