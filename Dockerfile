@@ -20,5 +20,8 @@ RUN ./node_modules/typescript/bin/tsc -p ./tsconfig.json
 # Open ports for discordjs
 EXPOSE 80 443
 
+# Build for Production
+ENV NODE_ENV = "production"
+
 # Start cmd
 CMD [ "node", "./dist/index.js" ]

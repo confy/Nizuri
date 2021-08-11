@@ -1,18 +1,22 @@
 // All this code was literally taken from https://discordjs.guide/
 
+import * as Discord from 'discord.js';
 import * as fs from 'fs';
-//import { prefix, token } from './config.json';
-import * as Discord from 'discord.js'
+import { config } from "dotenv";
+import { resolve } from "path";
+// Import dotenv and config env variables
+if (process.env.NODE_ENV != 'production') {
+    config({ path: resolve(__dirname, "../.env") })
+}
+
 const prefix = process.env.prefix
 const token = process.env.token
-console.log(token)
-
 const client: Discord.Client = new Discord.Client();
 
 // Dynamically retrieve event files
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
-	import(`./events/${file}`)
+    import(`./events/${file}`)
         .then((event) => {
             if (event.once) {
                 client.once(event.name, (...args) => event.execute(...args, client));
@@ -21,7 +25,7 @@ for (const file of eventFiles) {
             }
             console.log(`Loaded ${file}`)
         }
-    )
+        )
 }
 
 client.commands = new Discord.Collection();
@@ -33,11 +37,11 @@ for (const folder of commandFolders) {
     const commandFiles: string[] = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'))
     console.log(`Loading ${folder}`)
 
-  for (const file of commandFiles) {
-      import(`./commands/${folder}/${file}`)
-        .then((command) => client.commands.set(command.name, command));
-      console.log(`\tLoaded ${file}`)
-  }
+    for (const file of commandFiles) {
+        import(`./commands/${folder}/${file}`)
+            .then((command) => client.commands.set(command.name, command));
+        console.log(`\tLoaded ${file}`)
+    }
 }
 
 client.on('message', (message) => {
@@ -50,7 +54,7 @@ client.on('message', (message) => {
 
     const command: Discord.Command = client.commands.get(commandName) // Get command or checks for aliases
         || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-        
+
     if (!command) return; // return if command not found
 
     // Check if command is guildOnly
