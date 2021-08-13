@@ -1,11 +1,3 @@
-// Use Aws Services with these vars
-provider "aws" {
-  region     = var.aws_region
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
-}
-
-// Terraform will be run in the the cloud ("remote")
 terraform {
   backend "remote" {
     organization = "confy"
@@ -15,166 +7,69 @@ terraform {
   }
 }
 
-// Private VPC
-resource "aws_vpc" "vpc" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags = {
-    Name = "Nizuri_Public_VPC"
-  }
-}
-
-// Gateway to our VPC
-resource "aws_internet_gateway" "internet_gateway" {
-  vpc_id = aws_vpc.vpc.id
-}
-
-// Public Subnet
-resource "aws_subnet" "pub_subnet" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = "10.0.1.0/24"
-}
-
-// Routing table for our VPC
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.internet_gateway.id
-  }
-}
-
-// Pair public subnet with routing table
-resource "aws_route_table_association" "route_table_association" {
-  subnet_id      = aws_subnet.pub_subnet.id
-  route_table_id = aws_route_table.public.id
-}
-
-// Port Forwarding for our VPC
-resource "aws_security_group" "ecs_sg" {
-  vpc_id = aws_vpc.vpc.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-// Security role for our instances to use
-data "aws_iam_policy_document" "ecs_agent" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "ecs_agent" {
-  name               = "nizuri"
-  assume_role_policy = data.aws_iam_policy_document.ecs_agent.json
-}
+# provider "google" {
+#   region      = "${var.region}"
+#   project     = "${var.project_name}"
+#   credentials = "${file("${var.credentials_file_path}")}"
+# }
 
 
-resource "aws_iam_role_policy_attachment" "ecs_agent" {
-  role       = aws_iam_role.ecs_agent.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-}
+# resource "google_compute_instance" "docker" {
+#   count = 1
 
-resource "aws_iam_instance_profile" "ecs_agent" {
-  name = "ecs-agent"
-  role = aws_iam_role.ecs_agent.name
-}
+#   name         = "tf-docker-${count.index}"
+#   machine_type = "f1-micro"
+#   zone         = "${var.region_zone}"
+#   tags         = ["docker-node"]
 
-resource "aws_launch_configuration" "ecs_launch_config" {
-  image_id             = "ami-04b6c97b14c54de18"
-  iam_instance_profile = aws_iam_instance_profile.ecs_agent.name
-  security_groups      = [aws_security_group.ecs_sg.id]
-  user_data            = "#!/bin/bash\necho ECS_CLUSTER=my-cluster >> /etc/ecs/ecs.config"
-  instance_type        = "t2.micro"
-}
+#   boot_disk {
+#     initialize_params {
+#       image = "ubuntu-os-cloud/ubuntu-1404-trusty-v20160602"
+#     }
+#   }
 
-resource "aws_autoscaling_group" "failure_analysis_ecs_asg" {
-  name                 = "asg"
-  vpc_zone_identifier  = [aws_subnet.pub_subnet.id]
-  launch_configuration = aws_launch_configuration.ecs_launch_config.name
+#   network_interface {
+#     network = "default"
 
-  desired_capacity          = 2
-  min_size                  = 1
-  max_size                  = 10
-  health_check_grace_period = 300
-  health_check_type         = "EC2"
-}
+#     access_config {
+#       # Ephemeral
+#     }
+#   }
 
-resource "aws_ecr_repository" "nizuri" {
-  name = "nizuri"
-}
-
-resource "aws_ecs_cluster" "nizuri_cluster" {
-  name = "nizuri"
-}
-
-resource "aws_ecs_task_definition" "task_definition" {
-  family = "nizuri"
-  container_definitions = jsonencode([
-    {
-      "essential" : true,
-      "memory" : 512,
-      "name" : "nizuri-1",
-      "cpu" : 2,
-      "image" : "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
-      "environmentFiles" : [
-        {
-          "value" : "arn:aws:s3:::nizuri-env/.env"
-          "type" : "s3"
-        }
-      ]
-    },
-    {
-      "essential" : true,
-      "memory" : 512,
-      "name" : "nizuri-2",
-      "cpu" : 2,
-      "image" : "${var.account}.dkr.${var.aws_region}-1.amazonaws.com/nizuri:latest",
-      "environmentFiles" : [
-        {
-          "value" : "arn:aws:s3:::nizuri-env/.env"
-          "type" : "s3"
-        }
-      ]
-    }]
-  )
-}
+#   metadata {
+#     ssh-keys = "root:${file("${var.public_key_path}")}"
+#   }
 
 
-resource "aws_ecs_service" "worker" {
-  name            = "worker"
-  cluster         = aws_ecs_cluster.nizuri_cluster.id
-  task_definition = aws_ecs_task_definition.task_definition.arn
-  desired_count   = 2
-}
+#   provisioner "remote-exec" {
+#     connection {
+#       type        = "ssh"
+#       user        = "root"
+#       private_key = "${file("${var.private_key_path}")}"
+#       agent       = false
+#     }
+
+#     inline = [
+#       "sudo curl -sSL https://get.docker.com/ | sh",
+#       "sudo usermod -aG docker `echo $USER`",
+#       "sudo docker run -d -p 80:80 nginx"
+#     ]
+#   }
+
+#   service_account {
+#     scopes = ["https://www.googleapis.com/auth/compute.readonly"]
+#   }
+# }
+
+# resource "google_compute_firewall" "default" {
+#   name    = "tf-www-firewall"
+#   network = "default"
+
+#   allow {
+#     protocol = "tcp"
+#     ports    = ["80"]
+#   }
+
+#   source_ranges = ["0.0.0.0/0"]
+#   target_tags   = ["docker-node"]
+# }
