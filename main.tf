@@ -9,14 +9,14 @@ terraform {
 
 
 provider "google" {
-  region      = "${var.region}"
-  project     = "${var.project_name}"
-  credentials = "${var.google_credentials}"
+  region      = var.region
+  project     = var.project_name
+  credentials = var.google_credentials
 }
 
 resource "google_container_registry" "nizuri" {
-  project  = "${var.project_name}"
-  location = "${var.location}"
+  project  = var.project_name
+  location = var.location
 }
 
 
