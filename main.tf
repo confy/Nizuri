@@ -7,11 +7,17 @@ terraform {
   }
 }
 
-# provider "google" {
-#   region      = "${var.region}"
-#   project     = "${var.project_name}"
-#   credentials = "${file("${var.credentials_file_path}")}"
-# }
+
+provider "google" {
+  region      = "${var.region}"
+  project     = "${var.project_name}"
+  credentials = "${var.google_credentials}"
+}
+
+resource "google_container_registry" "nizuri" {
+  project  = "${var.project_name}"
+  location = "${var.location}"
+}
 
 
 # resource "google_compute_instance" "docker" {
