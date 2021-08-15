@@ -18,24 +18,24 @@ resource "google_container_registry" "nizuri" {
   location = var.location
 }
 
-resource "google_project_iam_custom_role" "nizuriAdmin" {
-  role_id     = "nizuriAdmin"
+resource "google_project_iam_custom_role" "nizuri" {
+  role_id     = "nizuri"
   title       = "Nizuri Admin"
   description = "The necessary perms for nizuri"
   permissions = ["storage.legacyBucketWriter"]
 }
 
 
-resource "google_service_account" "nizuriSA" {
-  account_id   = "nizuriSA"
+resource "google_service_account" "sa" {
+  account_id   = "sa"
   display_name = "Nizuri Service admin"
 }
 
 resource "google_project_iam_binding" "mservice_infra_binding" {
-  role = "projects/${var.project_name}/roles/${google_project_iam_custom_role.nizuriAdmin.role_id}"
+  role = "projects/${var.project_name}/roles/${google_project_iam_custom_role.nizuri.role_id}"
 
   members = [
-    "serviceAccount:${google_service_account.nizuriSA.email}",
+    "serviceAccount:${google_service_account.sa.email}",
   ]
 }
 
