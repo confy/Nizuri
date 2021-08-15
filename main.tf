@@ -25,6 +25,7 @@ resource "google_project_iam_custom_role" "nizuri-admin" {
   permissions = ["storage.legacyBucketWriter"]
 }
 
+
 resource "google_service_account" "nizuri-sa" {
   account_id   = "nizuri-sa"
   display_name = "Nizuri Service admin"
