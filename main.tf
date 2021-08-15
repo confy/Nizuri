@@ -18,6 +18,25 @@ resource "google_container_registry" "nizuri" {
   location = var.location
 }
 
+resource "google_project_iam_custom_role" "nizuri-admin" {
+  role_id     = "nizuri-admin"
+  title       = "Nizuri Admin"
+  description = "The necessary perms for nizuri"
+  permissions = ["storage.legacyBucketWriter"]
+}
+
+resource "google_service_account" "nizuri-sa" {
+  account_id   = "nizuri-sa"
+  display_name = "Nizuri Service admin"
+}
+
+resource "google_project_iam_binding" "mservice_infra_binding" {
+  role = "projects/${var.project_name}/roles/${google_project_iam_custom_role.nizuri-admin.role_id}"
+
+  members = [
+    "serviceAccount:${google_service_account.nizuri-sa.email}",
+  ]
+}
 
 # resource "google_compute_instance" "docker" {
 #   count = 1
