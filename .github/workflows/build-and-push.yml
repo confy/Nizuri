@@ -10,13 +10,13 @@ jobs:
   deploy:
     name: Build And Push
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
         name: Checkout
-      # - uses: mr-smithers-excellent/docker-build-push@v5
-      #   with:
-      #     image: gcp-project/image-name
-      #     registry: gcr.io
-      #     username: _json_key
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        with:
+          image: nizuri/master
+          registry: gcr.io
+          addLatest: true
+          username: _json_key
+          password: ${{ secrets.SA_KEY_JSON }}
