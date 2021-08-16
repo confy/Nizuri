@@ -31,7 +31,7 @@ resource "google_service_account" "nizurisa" {
   display_name = "Nizuri Service admin"
 }
 
-resource "google_project_iam_binding" "mservice_infra_binding" {
+resource "google_project_iam_binding" "nizbinding" {
   role = "projects/${var.project_name}/roles/${google_project_iam_custom_role.nizuri.role_id}"
 
   members = [
