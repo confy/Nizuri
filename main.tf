@@ -22,7 +22,7 @@ resource "google_project_iam_custom_role" "nizuri" {
   role_id     = "nizuri"
   title       = "Nizuri Admin"
   description = "The necessary perms for nizuri"
-  permissions = ["storage.legacyBucketWriter"]
+  permissions = ["storage.objects.create", "storage.objects.delete", "storage.objects.get", "storage.objects.getIamPolicy", "storage.objects.list", "storage.objects.setIamPolicy", "storage.objects.update"]
 }
 
 
